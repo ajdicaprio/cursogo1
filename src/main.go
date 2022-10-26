@@ -34,6 +34,14 @@ func dobleReturn(a, b int) (c, d int) {
 	return a + b, a - b
 }
 
+func say(text string) {
+	fmt.Println(text)
+}
+
+func mensEmailfunc(text string, c chan string) {
+	c <- text
+}
+
 func main() {
 	//Constantes
 	const pi float64 = 3.14
@@ -204,4 +212,29 @@ func main() {
 	//Listas e Interfaces
 	myInterface := []interface{}{1, "abc", true}
 	fmt.Println(myInterface...)
+
+	//CONCURRENCIA
+	//me creo una funcion "say" para ahorrarme el printLn
+	say("say: por que no lo hice antes??")
+	//se usa la palabra go funcion
+	// sleep es mala practica, wait group (wg) es lo mas optimizado
+	// channel es lo mas facil y puede compartir data
+
+	email1 := make(chan string)
+	email2 := make(chan string)
+	//buena practica es poner (chan string, num)
+	//num es la cantidad de goroutines q va a recibir. si no se pone es dinamico.
+	go mensEmailfunc("mensaje1", email1)
+	go mensEmailfunc("mensaje2", email2)
+	for i := 0; i < 2; i++ {
+		select {
+		case m1 := <-email1:
+			fmt.Println("Email recibido de email1", m1)
+		case m2 := <-email2:
+			fmt.Println("Email recibido de email2", m2)
+		}
+	}
+
+	close(email1)
+	close(email2)
 }
